@@ -100,23 +100,24 @@ interface User {
 
 async function getAllArticles(): Promise<Article[]> {
   let allArticles: Article[] = [];
-  let nextPage: string | null = null;
   let currentPage = 1;
 
   do {
     try {
       console.log(`Fetching articles page: ${currentPage}`);
       const response: AxiosResponse<{ articles: Article[], next_page: string | null }> = await zendeskApi.get('/help_center/articles.json', {
-        params: {
-          ...(nextPage ? { page: nextPage } : {})
-        }
+        params: { page: currentPage }
       });
 
       allArticles = allArticles.concat(response.data.articles);
-      nextPage = response.data.next_page;
+      console.log(`Retrieved ${response.data.articles.length} articles. Total: ${allArticles.length}`);
+
+      // If there's no next page, it means we've fetched all articles
+      if (!response.data.next_page) {
+        break;
+      }
       currentPage++;
 
-      console.log(`Retrieved ${response.data.articles.length} articles. Total: ${allArticles.length}`);
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 429) {
         console.error('Rate limit exceeded. Waiting before retrying...');
@@ -125,7 +126,7 @@ async function getAllArticles(): Promise<Article[]> {
         throw error;
       }
     }
-  } while (nextPage);
+  } while (currentPage);
 
   console.log(`Total articles retrieved: ${allArticles.length}`);
   return allArticles;
