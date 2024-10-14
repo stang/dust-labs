@@ -9,6 +9,7 @@ const ZENDESK_EMAIL = process.env.ZENDESK_EMAIL;
 const ZENDESK_API_TOKEN = process.env.ZENDESK_API_TOKEN;
 const DUST_API_KEY = process.env.DUST_API_KEY;
 const DUST_WORKSPACE_ID = process.env.DUST_WORKSPACE_ID;
+const DUST_VAULT_ID = process.env.DUST_VAULT_ID;
 const DUST_DATASOURCE_ID = process.env.DUST_DATASOURCE_ID;
 
 const missingEnvVars = [
@@ -17,6 +18,7 @@ const missingEnvVars = [
   ['ZENDESK_API_TOKEN', ZENDESK_API_TOKEN],
   ['DUST_API_KEY', DUST_API_KEY],
   ['DUST_WORKSPACE_ID', DUST_WORKSPACE_ID],
+  ['DUST_VAULT_ID', DUST_VAULT_ID],
   ['DUST_DATASOURCE_ID', DUST_DATASOURCE_ID]
 ].filter(([name, value]) => !value).map(([name]) => name);
 
@@ -163,7 +165,7 @@ ${article.body}
 
   try {
     await limitedDustApiPost(
-      `/w/${DUST_WORKSPACE_ID}/data_sources/${DUST_DATASOURCE_ID}/documents/${documentId}`,
+      `/w/${DUST_WORKSPACE_ID}/vaults/${DUST_VAULT_ID}/data_sources/${DUST_DATASOURCE_ID}/documents/${documentId}`,
       {
         text: content,
         source_url: article.html_url
