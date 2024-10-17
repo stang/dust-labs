@@ -105,6 +105,12 @@ async function configureNotionDatabase() {
   try {
     const response = await notion.databases.update({
       database_id: NOTION_DATABASE_ID ?? '',
+      description: [
+        { text: { content: "💡 All the ", } },
+        { text: { content: "dust.*", }, annotations: { "code": true, } },
+        { text: { content: " fields are automatically synced from Dust.tt. Last sync: ", } },
+        { text: { content: new Date().toLocaleString(), }, annotations: { code: true, } },
+      ],
       properties: {
         ...(existingDatabaseConfig.properties.Name ? { Name: { name: "dust.name"} } : {}), // Rename the 'Name' property to 'dust.name'
         ...(existingDatabaseConfig.properties.Tags ? { Tags: null } : {}), // Remove the 'Tags' property if it exists in the current configuration
