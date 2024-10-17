@@ -42,6 +42,11 @@ To run the script:
 npm run sync-list-of-assistants-to-notion-database
 ```
 
+## How It Works
+
+1. The script fetches all the assistants in a given Dust workspace.
+2. It configures the Notion database with some predefined properties (see [Notes](#notes) bellow)
+
 ## Dependencies
 
 - axios: For making HTTP requests to Zendesk and Dust APIs
@@ -52,6 +57,11 @@ npm run sync-list-of-assistants-to-notion-database
 - @types/node: TypeScript definitions for Node.js
 - tsx: For running TypeScript files directly
 - typescript: The TypeScript compiler
+
+## Notes
+
+The Notion database must be created manually.
+We expect the database to be dedicated to this script. Therefore, the script will automatically configure the fields of the database.
 
 ## License
 

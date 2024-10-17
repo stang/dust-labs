@@ -1,6 +1,6 @@
 import axios, { AxiosResponse } from 'axios';
 import * as dotenv from 'dotenv';
-
+import { Client } from '@notionhq/client';
 
 dotenv.config();
 
@@ -86,12 +86,58 @@ async function getDustAssistants(): Promise<DustAssistant[]> {
   }
 }
 
+const notion = new Client({ auth: NOTION_API_KEY });
+
+async function configureNotionDatabase() {
+
+  // Get existing database configuration
+  let existingDatabaseConfig;
+  try {
+    existingDatabaseConfig = await notion.databases.retrieve({
+      database_id: NOTION_DATABASE_ID ?? '',
+    });
+    console.log('Retrieved existing Notion database configuration');
+  } catch (error) {
+    console.error('Error retrieving existing Notion database configuration:', error);
+  }
+  try {
+    const response = await notion.databases.update({
+      database_id: NOTION_DATABASE_ID ?? '',
+      properties: {
+        ...(existingDatabaseConfig.properties.Name ? { Name: { name: "dust.name"} } : {}), // Rename the 'Name' property to 'dust.name'
+        ...(existingDatabaseConfig.properties.Tags ? { Tags: null } : {}), // Remove the 'Tags' property if it exists in the current configuration
+        'dust.description': { rich_text: {} },
+        'dust.id': { rich_text: {} },
+        'dust.instructions': { rich_text: {} },
+        'dust.maxStepsPerRun': { number: {} },
+        'dust.modelId': { select: {} },
+        'dust.modelProviderId': { select: {} },
+        'dust.modelTemperature': { number: {} },
+        'dust.pictureUrl': { url: {} },
+        'dust.scope': { select: {} },
+        'dust.sId': { rich_text: {} },
+        'dust.status': { select: {} },
+        'dust.visualizationEnabled': { checkbox: {} },
+      }
+    });
+    console.log('Notion database configured successfully');
+    return response;
+  } catch (error) {
+    console.error('Error configuring Notion database:', error);
+    throw error;
+  }
+}
+
 async function main() {
   console.log(`Syncing the list of Dust assistants from workspace ${DUST_WORKSPACE_ID} innto Notion database ${NOTION_DATABASE_ID}`);
   try {
     console.log(`Fetching the list of Dust assistants.`);
     const assistants = await getDustAssistants();
     console.log(`Found ${assistants.length} assistants.`);
+
+    console.log(`Configuring the Notion database.`);
+    await configureNotionDatabase();
+
   } catch (error) {
     console.error('An error occurred:', error);
   }
