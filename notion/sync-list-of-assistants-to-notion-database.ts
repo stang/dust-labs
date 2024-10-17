@@ -110,13 +110,13 @@ async function configureNotionDatabase() {
         'dust.id': { rich_text: {} },
         'dust.instructions': { rich_text: {} },
         'dust.maxStepsPerRun': { number: {} },
-        'dust.modelId': { select: {} },
-        'dust.modelProviderId': { select: {} },
+        ...(existingDatabaseConfig.properties['dust.modelId'] ? {} : { 'dust.modelId': { select: {} } }),
+        ...(existingDatabaseConfig.properties['dust.modelProviderId'] ? {} : { 'dust.modelProviderId': { select: {} } }),
         'dust.modelTemperature': { number: {} },
         'dust.pictureUrl': { url: {} },
-        'dust.scope': { select: {} },
+        ...(existingDatabaseConfig.properties['dust.scope'] ? {} : { 'dust.scope': { select: {} } }),
         'dust.sId': { rich_text: {} },
-        'dust.status': { select: {} },
+        ...(existingDatabaseConfig.properties['dust.status'] ? {} : { 'dust.status': { select: {} } }),
         'dust.visualizationEnabled': { checkbox: {} },
       }
     });
