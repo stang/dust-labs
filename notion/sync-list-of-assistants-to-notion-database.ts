@@ -38,6 +38,7 @@ interface DustAssistant {
   };
   status: string;
   maxStepsPerRun: number;
+  versionCreatedAt: string;
   visualizationEnabled: boolean;
   templateId: string;
 }
@@ -71,6 +72,7 @@ async function getDustAssistants(): Promise<DustAssistant[]> {
       model: assistant.model,
       status: assistant.status,
       maxStepsPerRun: assistant.maxStepsPerRun,
+      versionCreatedAt: assistant.versionCreatedAt,
       visualizationEnabled: assistant.visualizationEnabled,
       templateId: assistant.templateId,
     }));
@@ -109,6 +111,7 @@ async function configureNotionDatabase() {
         'dust.description': { rich_text: {} },
         'dust.id': { rich_text: {} },
         'dust.instructions': { rich_text: {} },
+        'dust.lastVersionCreatedAt': { date: {}, description: "Last time the assistant configuration has been updated." },
         'dust.maxStepsPerRun': { number: {} },
         ...(existingDatabaseConfig.properties['dust.modelId'] ? {} : { 'dust.modelId': { select: {} } }),
         ...(existingDatabaseConfig.properties['dust.modelProviderId'] ? {} : { 'dust.modelProviderId': { select: {} } }),
@@ -144,6 +147,7 @@ async function upsertToNotion(assistant: any) {
       'dust.description': { rich_text: [ { text: { content: assistant.description } } ] },
       'dust.id': { rich_text: [ { text: { content: assistant.id.toString() } } ] },
       'dust.instructions': { rich_text: [ { text: { content: (assistant.instructions || '').substring(0, 2000) } } ] },
+      'dust.lastVersionCreatedAt': { date: assistant.versionCreatedAt ? { start: assistant.versionCreatedAt } : null },
       'dust.maxStepsPerRun': { number: assistant.maxStepsPerRun },
       'dust.modelId': { select: { name: assistant.model.modelId } },
       'dust.modelProviderId': { select: { name: assistant.model.providerId } },
