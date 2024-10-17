@@ -128,6 +128,56 @@ async function configureNotionDatabase() {
   }
 }
 
+async function upsertToNotion(assistant: any) {
+  try {
+    // Check if the page already exists
+    const existingPages = await notion.databases.query({
+      database_id: NOTION_DATABASE_ID ?? '',
+      filter: {
+        property: 'dust.name',
+        title: { equals: assistant.name }
+      }
+    });
+
+    // Map data to Notion database's properties
+    const properties = {
+      'dust.description': { rich_text: [ { text: { content: assistant.description } } ] },
+      'dust.id': { rich_text: [ { text: { content: assistant.id.toString() } } ] },
+      'dust.instructions': { rich_text: [ { text: { content: (assistant.instructions || '').substring(0, 2000) } } ] },
+      'dust.maxStepsPerRun': { number: assistant.maxStepsPerRun },
+      'dust.modelId': { select: { name: assistant.model.modelId } },
+      'dust.modelProviderId': { select: { name: assistant.model.providerId } },
+      'dust.modelTemperature': { number: assistant.model.temperature },
+      'dust.name': { title: [ { text: { content: assistant.name } } ] },
+      'dust.pictureUrl': { url: assistant.pictureUrl || null },
+      'dust.scope': { select: { name: assistant.scope } },
+      'dust.sId': { rich_text: [ { text: { content: assistant.sId } } ] },
+      'dust.status': { select: { name: assistant.status } },
+      'dust.visualizationEnabled': { checkbox: assistant.visualizationEnabled },
+    }
+
+    let response;
+    if (existingPages.results.length > 0) { // update existing entry if there is (at least) a match
+      console.log(`Updating assistant '${assistant.name}' in Notion database`);
+      response = await notion.pages.update({
+        page_id: existingPages.results[0].id,
+        properties: properties as Record<string, any>
+      });
+    } else { // create new entry if there is no match
+      console.log(`Creating assistant '${assistant.name}' in Notion database`);
+      response = await notion.pages.create({
+        parent: { database_id: NOTION_DATABASE_ID ?? '' },
+        properties: properties as Record<string, any>
+      });
+    }
+
+    return response;
+  } catch (error) {
+    console.error(`Error processing assistant '${assistant.name}':`, error);
+    throw error;
+  }
+}
+
 async function main() {
   console.log(`Syncing the list of Dust assistants from workspace ${DUST_WORKSPACE_ID} innto Notion database ${NOTION_DATABASE_ID}`);
   try {
@@ -138,6 +188,11 @@ async function main() {
     console.log(`Configuring the Notion database.`);
     await configureNotionDatabase();
 
+    for (const assistant of assistants) {
+      await upsertToNotion(assistant);
+    }
+
+    console.log('All assistants processed successfully.');
   } catch (error) {
     console.error('An error occurred:', error);
   }
