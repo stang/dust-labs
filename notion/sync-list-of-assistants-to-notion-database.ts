@@ -52,7 +52,7 @@ interface DustAssistant {
 }
 
 const dustApi = axios.create({
-  baseURL: 'https://dust.tt/api/v1',
+  baseURL: 'https://eu.dust.tt/api/v1',
   headers: {
     'Authorization': `Bearer ${DUST_API_KEY}`,
     'Content-Type': 'application/json'
@@ -217,8 +217,8 @@ async function upsertToNotion(assistant: any) {
       'dust.scope': { select: { name: assistant.scope } },
       'dust.sId': { rich_text: [ { text: { content: assistant.sId } } ] },
       'dust.status': { select: { name: assistant.status } },
-      'dust.url': { url: `https://dust.tt/w/${DUST_WORKSPACE_ID}/assistant/new?assistant=${assistant.sId}` },
-      'dust.assistantDetailsUrl': { url: `https://dust.tt/w/${DUST_WORKSPACE_ID}/assistant/new?assistantDetails=${assistant.sId}` },
+      'dust.url': { url: `https://eu.dust.tt/w/${DUST_WORKSPACE_ID}/assistant/new?assistant=${assistant.sId}` },
+      'dust.assistantDetailsUrl': { url: `https://eu.dust.tt/w/${DUST_WORKSPACE_ID}/assistant/new?assistantDetails=${assistant.sId}` },
       'dust.visualizationEnabled': { checkbox: assistant.visualizationEnabled },
     }
 
