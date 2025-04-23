@@ -6,6 +6,7 @@ dotenv.config();
 
 const MODJO_BASE_URL = process.env.MODJO_BASE_URL || "https://api.modjo.ai";
 const MODJO_API_KEY = process.env.MODJO_API_KEY;
+const DUST_BASE_URL = process.env.DUST_BASE_URL || "https://dust.tt";
 const DUST_API_KEY = process.env.DUST_API_KEY;
 const DUST_WORKSPACE_ID = process.env.DUST_WORKSPACE_ID;
 const DUST_VAULT_ID = process.env.DUST_VAULT_ID;
@@ -40,7 +41,7 @@ const modjoApi = axios.create({
 });
 
 const dustApi = axios.create({
-  baseURL: "https://dust.tt/api/v1",
+  baseURL: `${DUST_BASE_URL}/api/v1`,
   headers: {
     Authorization: `Bearer ${DUST_API_KEY}`,
     "Content-Type": "application/json",
