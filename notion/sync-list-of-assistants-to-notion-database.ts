@@ -49,6 +49,11 @@ interface DustAssistant {
   versionCreatedAt: string;
   visualizationEnabled: boolean;
   templateId: string;
+  tags: {
+    sId: string;
+    name: string;
+    kind: string;
+  }[];
 }
 
 const dustApi = axios.create({
@@ -83,6 +88,7 @@ async function getDustAssistants(): Promise<DustAssistant[]> {
       versionCreatedAt: assistant.versionCreatedAt,
       visualizationEnabled: assistant.visualizationEnabled,
       templateId: assistant.templateId,
+      tags: assistant.tags || [],
     }));
 
     // Fetch assistants' usage data
@@ -174,6 +180,7 @@ async function configureNotionDatabase() {
         ...(existingDatabaseConfig.properties['dust.scope'] ? {} : { 'dust.scope': { select: {} } }),
         'dust.sId': { rich_text: {} },
         ...(existingDatabaseConfig.properties['dust.status'] ? {} : { 'dust.status': { select: {} } }),
+        ...(existingDatabaseConfig.properties['dust.tags'] ? {} : { 'dust.tags': { multi_select: {} } }),
         'dust.url': { url: {} },
         'dust.assistantDetailsUrl': { url: {} },
         'dust.visualizationEnabled': { checkbox: {} },
@@ -217,6 +224,7 @@ async function upsertToNotion(assistant: any) {
       'dust.scope': { select: { name: assistant.scope } },
       'dust.sId': { rich_text: [ { text: { content: assistant.sId } } ] },
       'dust.status': { select: { name: assistant.status } },
+      'dust.tags': { multi_select: assistant.tags.map(tag => ({ name: tag.name })) },
       'dust.url': { url: `https://eu.dust.tt/w/${DUST_WORKSPACE_ID}/assistant/new?assistant=${assistant.sId}` },
       'dust.assistantDetailsUrl': { url: `https://eu.dust.tt/w/${DUST_WORKSPACE_ID}/assistant/new?assistantDetails=${assistant.sId}` },
       'dust.visualizationEnabled': { checkbox: assistant.visualizationEnabled },
